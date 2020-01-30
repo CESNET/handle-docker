@@ -13,9 +13,52 @@ drivers for [MySQL](https://www.mysql.com/) and
 https://www.handle.net/tech_manual/HN_Tech_Manual_8.pdf). The server software
 is installed at ```/handle.net-server```.
 
+# Usage
+
+```
+git clone https://github.com/CESNET/handle-docker
+cd handle-docker
+docker build -t cesnet-handle .
+docker run cesnet-handle
+```
+
 # Configuration
 
+The following `--build-args` are possible when building the image:
 
+```
+# Serial number of Handle site
+ARG SITE_VERSION
+# Handle site description
+ARG SITE_DESCRIPTION
+# Handle site organization
+ARG SITE_ORG
+# Handle site contact email
+ARG SITE_CONTACT
+# Handle site contact name
+ARG SITE_CONTACT_NAME
+# Handle site contact phone
+ARG SITE_CONTACT_PHONE
+# Passphrase for site certification key
+ARG CERTIFI_PASSPHRASE
+# Passphrase for administrative key
+ARG ADM_PASSPHRASE
+# Handle server distribution package
+ARG HANDLE_SOURCE
+# Handle site directory
+ARG SRV_DIR
+# UID of the handle user
+ARG HANDLE_USER_ID=1000
+```
+
+# Ports
+
+The service exposes the following ports by default (can be changed in ENV):
+
+```
+    * CLIENT_PORT 2641 (TCP,UDP)
+    * ENV HTTP_PORT 8000 (TCP)
+```
 
 ## Licenses
 

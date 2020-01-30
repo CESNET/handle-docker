@@ -1,3 +1,12 @@
+FROM golang as GOMPLATE
+
+RUN mkdir -p /go/src/github.com/hairyhenderson \
+ && git clone https://github.com/rhuss/gomplate.git /go/src/github.com/hairyhenderson/gomplate
+
+WORKDIR /go/src/github.com/hairyhenderson/gomplate
+ENV CGO_ENABLED=0
+RUN make build
+
 FROM openjdk:9-jdk
 
 # Setup container environment
@@ -49,8 +58,9 @@ RUN useradd handle --create-home -d ${SRV_DIR} --uid ${HANDLE_USER_ID} --gid 0 &
 
 
 # Download and unpack handle distribution
+COPY --from=GOMPLATE /go/src/github.com/hairyhenderson/gomplate/bin/gomplate /usr/bin/gomplate
 RUN apt-get update && apt-get install -y --no-install-recommends wget \
-	locales locales-all \
+	locales locales-all expect\
 	&& apt-get clean \
 	&& rm -rf /var/lib/apt/lists/* \
 	&& mkdir /handle.net-server \
@@ -72,30 +82,17 @@ RUN wget https://dev.mysql.com/get/Downloads/Connector-J/mysql-connector-java-5.
   && wget https://jdbc.postgresql.org/download/postgresql-42.1.4.jar -P lib
 
 # Install the handle distribution
-# --Answers:
-# 1) Will this be a "primary" server (ie, not a mirror of another server)?(y/n) [y]
-# 2) Will this be a dual-stack server (accessible on both IPv6 and IPv4)?(y/n) [n]
-# 3) Through what network-accessible IP address should clients connect to this server? [container ip]
-# 4) If different, enter the IP address to which the server should bind. [container ip]
-# 5) Enter the (TCP/UDP) port number this server will listen to [2641]
-# 6) What port number will the HTTP interface be listening to? [8000]
-# 7) Would you like to log all accesses to this server?(y/n) [y]
-# 8) Please indicate whether log files should be automatically rotated, and if so, how often.
-#    ("N" (Never), "M" (Monthly), "W" (Weekly), or "D" (Daily))? [Monthly]
-# 9) Enter the version/serial number of this site [1]
-#10) Please enter a short description of this server/site
-#11) Please enter the name of your organization
-#12) Please enter the name of a contact person
-#13) Please enter the telephone number of contact
-#14) Do you need to disable UDP services?(y/n) [n]
-#15) Generating keys for: Server Certification Would you like to encrypt your private key?(y/n) [y]
-#16) Please enter the private key passphrase for Server Certification
-#17) Please re-enter the private key passphrase:
-#18) Generating keys for: Administration Would you like to encrypt your private key?(y/n) [y]
-#19) Please enter the private key passphrase for Administration:
-#20) Please re-enter the private key passphrase:
-RUN echo -e "\n\n\n\n${CLIENT_PORT}\n${HTTP_PORT}\n\nD\n${SITE_VERSION}\n${SITE_DESCRIPTION}\n${SITE_ORG}\n${SITE_CONTACT_NAME}\n${SITE_CONTACT_PHONE}\n${SITE_CONTACT}\n\n\n${CERTIFI_PASSPHRASE}\n${CERTIFI_PASSPHRASE}\n\n${ADM_PASSPHRASE}\n${ADM_PASSPHRASE}\n" | ./bin/hdl-setup-server ${SRV_DIR}
 
-ENTRYPOINT ["./bin/hdl-server"]
+# TODO: make templates forom .exp files, pass ENV/ARG variables inside
+COPY autoexpect-setup-server.exp setup-server.exp
+COPY autoexpect-start-server.exp start-server.exp
+RUN expect setup-server.exp
 
-CMD ["${SRV_DIR}"]
+# TODO: use handle-user bindable internal ports
+USER root
+
+#ENTRYPOINT ["bash"]
+ENTRYPOINT ["expect"]
+
+CMD [ "start-server.exp" ]
+
