@@ -55,10 +55,8 @@ ARG HANDLE_USER_ID=1000
 
 The service exposes the following ports by default (can be changed in ENV):
 
-```
-    * CLIENT_PORT 2641 (TCP,UDP)
-    * ENV HTTP_PORT 8000 (TCP)
-```
+ * CLIENT_PORT 2641 (TCP,UDP)
+ * ENV HTTP_PORT 8000 (TCP)
 
 ## Licenses
 
