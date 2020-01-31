@@ -1,6 +1,5 @@
 # handle-docker
 Dockerized Handle.net CESNET registry
-containing the [Handle.net][handle.net] server software bundled
 with [JDBC](http://www.oracle.com/technetwork/java/javase/jdbc/index.html)
 drivers for [MySQL](https://www.mysql.com/) and
 [PostgreSQL](https://www.postgresql.org/). For usage instructions refer to the
@@ -21,27 +20,28 @@ docker run cesnet-handle
 
 The following `--build-args` are possible when building the image:
 
-```
-
-ARG SITE_VERSION        # Serial number of Handle site
-ARG SITE_DESCRIPTION    # Handle site description
-ARG SITE_ORG            # Handle site organization
-ARG SITE_CONTACT        # Handle site contact email
-ARG SITE_CONTACT_NAME   # Handle site contact name
-ARG SITE_CONTACT_PHONE  # Handle site contact phone
-ARG CERTIFI_PASSPHRASE  # Passphrase for site certification key
-ARG ADM_PASSPHRASE      # Passphrase for administrative key
-ARG HANDLE_SOURCE       # Handle server distribution package
-ARG SRV_DIR             # Handle site directory
-ARG HANDLE_USER_ID=1000 # UID of the handle user
-```
+| Parameter                            | Description                               | Default                                                 |
+| ------------------------------------ | ----------------------------------------- | ----------------------------------- |
+| SITE_VERSION                         | Serial number of Handle site              | 1                                   |                                   
+| SITE_DESCRIPTION                     | Handle site description                   | Example Handle.Net Registry service |                   |
+| SITE_ORG                             | Handle site organization                  | example.org                         |
+| SITE_CONTACT                         | Handle site contact email                 | admin@example.org                   |
+| SITE_CONTACT                         | Handle site contact email                 | admin@example.org                   |
+| SITE_CONTACT_NAME                    | Handle site contact name                  | admin                               |
+| SITE_CONTACT_PHONE                   | Handle site contact phone                 |                                     |
+| CERTIFI_PASSPHRASE                   | Site certification key passphrase         | handl3.net-CHANGEME!!!              |
+| ADM_PASSPHRASE                       | Administrative key passphrase             | handl3.net-adm-CHANGEME!!!          |
+| HANDLE_SOURCE                        | Handle server distribution package        | handle-9.2.0-distribution.tar.gz    |
+| SRV_DIR                              | Handle site config directory              | /srv/handle                         |
+| HANDLE_USER_ID                       | UID of the handle user                    | 1000                                |
 
 # Ports
 
-The service exposes the following ports by default (can be changed in ENV):
+The service exposes the following ports by default (can be overridden by ENV):
 
  * **ENV CLIENT_PORT** 2641 (TCP,UDP)
  * **ENV HTTP_PORT** 8000 (TCP)
+
 
 ## Licenses
 

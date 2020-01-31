@@ -43,7 +43,7 @@ if {$force_conservative} {
 
 
 set timeout -1
-spawn ./bin/hdl-setup-server /srv/handle/
+spawn ./bin/hdl-setup-server {{ .Env.SRV_DIR }}
 match_max 100000
 expect -exact "\r
 To configure your new Handle server, please answer\r
@@ -62,17 +62,11 @@ expect -re {.*Through what network-accessible IP address should clients connect 
 send -- "0.0.0.0\r"
 expect -re {.*If different, enter the IP address to which the server should bind.*}
 send -- "0.0.0.0\r"
-expect -exact "\r
-\r
-Enter the (TCP/UDP) port number this server will listen to \[2641\]: "
-send -- "\r"
-expect -exact "\r
-\r
-What port number will the HTTP interface be listening to? \[8000\]: "
-send -- "\r"
-expect -exact "\r
-\r
-Would you like to log all accesses to this server?(y/n) \[y\]: "
+expect -re {.*Enter the .* port number this server will listen to.*}
+send -- "{{ .Env.CLIENT_PORT }}\r"
+expect -re {.*What port number will the HTTP interface be listening to.*}
+send -- "{{ .Env.HTTP_PORT }}\r"
+expect -re {.*Would you like to log all accesses to this server.*}
 send -- "\r"
 expect -exact "\r
 \r
@@ -91,35 +85,18 @@ accessed a server in the site.  Every time you modify a site\r
 you should increment the version/serial number for that site.\r
 \r
 Enter the version/serial number of this site \[1\]: "
-send -- "\r"
-expect -exact "\r
-\r
-Please enter a short description of this server/site: "
-send -- "desc\r"
-expect -exact "desc\r
-\r
-Please enter the name of your organization: "
-send -- "org\r"
-expect -exact "org\r
-\r
-Please enter the name of a contact person\r
-for org (optional) \[(none)\]: "
-send -- "person\r"
-expect -exact "person\r
-\r
-Please enter the telephone number of person or of org (optional) \[(none)\]: "
-send -- "\r"
-expect -exact "\r
-\r
-Please enter the email address of person or of org: "
-send -- "email@org.org\r"
-expect -exact "email@org.org\r
-\r
-The handle server can communicate via UDP and/or TCP sockets.\r
-Since UDP messages are blocked by many network firewalls, you may\r
-want to disable UDP services if you are behind such a firewall.\r
-\r
-  Do you need to disable UDP services?(y/n) \[n\]: "
+send -- "{{ .Env.SITE_VERSION }}\r"
+expect -re {.*Please enter a short description of this server/site:.*}
+send -- "{{ .Env.SITE_DESCRIPTION}}\r"
+expect -re {.*Please enter the name of your organization.*}
+send -- "{{ .Env.SITE_ORG }}\r"
+expect -re {.*Please enter the name of a contact person.*}
+send -- "{{ .Env.SITE_CONTACT_NAME }}\r"
+expect -re {.*Please enter the telephone number of.*}
+send -- "{{ .Env.SITE_CONTACT_PHONE }}\r"
+expect -re {.*Please enter the email address of.*}
+send -- "{{ .Env.SITE_CONTACT }}\r"
+expect -re {.*Do you need to disable UDP services.*}
 send -- "\r"
 expect -exact "\r
 \r
@@ -140,37 +117,18 @@ expect -exact "\r
 Please enter the private key passphrase for Server Certification: \r
 Note: Your passphrase will be displayed as it is entered\r
 "
-send -- "secret\r"
-expect -exact "secret\r
-\r
-Please re-enter the private key passphrase: \r
-Note: Your passphrase will be displayed as it is entered\r
-"
-send -- "secret\r"
-expect -exact "secret\r
-\r
-Generating keys for: Administration\r
-\r
-The private key that is about to be generated should be stored\r
-in an encrypted form on your computer. Encryption of the\r
-private key requires that you choose a secret passphrase that\r
-will need to be entered whenever the server is started.\r
-Note: Your private key may be stored unencrypted if you so choose.\r
-Please take all precautions to make sure that only authorized\r
-users can read your private key.\r
-\r
-  Would you like to encrypt your private key?(y/n) \[y\]: "
+send -- "{{ .Env.CERTIFI_PASSPHRASE }}\r"
+expect -re {.*Please re-enter the private key passphrase: \r
+Note: Your passphrase will be displayed as it is entered\r}
+send -- "{{ .Env.CERTIFI_PASSPHRASE }}\r"
+expect -re {.*Would you like to encrypt your private key.*}
 send -- "\r"
 expect -exact "\r
 \r
 Please enter the private key passphrase for Administration: \r
 Note: Your passphrase will be displayed as it is entered\r
 "
-send -- "s3cr3t\r"
-expect -exact "s3cr3t\r
-\r
-Please re-enter the private key passphrase: \r
-Note: Your passphrase will be displayed as it is entered\r
-"
-send -- "s3cr3t\r"
+send -- "{{ .Env.ADM_PASSPHRASE }}\r"
+expect -re {.*Note: Your passphrase will be displayed as it is entered\r}
+send -- "{{ .Env.ADM_PASSPHRASE }}\r"
 expect eof

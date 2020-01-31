@@ -1,7 +1,7 @@
 FROM golang as GOMPLATE
 
 RUN mkdir -p /go/src/github.com/hairyhenderson \
- && git clone https://github.com/rhuss/gomplate.git /go/src/github.com/hairyhenderson/gomplate
+ && git clone https://github.com/hairyhenderson/gomplate.git /go/src/github.com/hairyhenderson/gomplate
 
 WORKDIR /go/src/github.com/hairyhenderson/gomplate
 ENV CGO_ENABLED=0
@@ -10,15 +10,19 @@ RUN make build
 FROM openjdk:9-jdk
 
 # Setup container environment
-ENV SITE_VERSION 1
-ENV SITE_DESCRIPTION "CESNET Handle.Net Registry service"
-ENV SITE_ORG "CESNET"
-ENV SITE_CONTACT_NAME "DU support"
-ENV SITE_CONTACT_PHONE ""
-ENV SITE_CONTACT "du-support@cesnet.cz"
+ARG SITE_VERSION=1
+ARG SITE_DESCRIPTION="Example Handle.Net Registry service"
+ARG SITE_ORG="example.org"
+ARG SITE_CONTACT_NAME="admin"
+ARG SITE_CONTACT_PHONE=""
+ARG SITE_CONTACT="admin@example.org"
 
-ENV CERTIFI_PASSPHRASE "handl3.net-CHANGEME!!!"
-ENV ADM_PASSPHRASE "handl3.net-adm-CHANGEME!!!"
+ARG CERTIFI_PASSPHRASE="handl3.net-CHANGEME!!!"
+ARG ADM_PASSPHRASE="handl3.net-adm-CHANGEME!!!"
+
+ARG HANDLE_SOURCE=handle-9.2.0-distribution.tar.gz
+ARG SRV_DIR=${SRV_DIR}
+ARG HANDLE_USER_ID=1000
 
 ENV DEBIAN_FRONTEND noninteractive
 ENV TERM xterm
@@ -29,18 +33,14 @@ ENV CLIENT_PORT 2641
 ENV HTTP_PORT 8000
 ENV SRV_DIR /srv/handle
 
-ARG SITE_VERSION=${SITE_VERSION}
-ARG SITE_DESCRIPTION=${SITE_DESCRIPTION}
-ARG SITE_ORG=${SITE_ORG}
-ARG SITE_CONTACT=${SITE_CONTACT}
-ARG SITE_CONTACT_NAME=${SITE_CONTACT_NAME}
-ARG SITE_CONTACT_PHONE=${SITE_CONTACT_PHONE}
-ARG CERTIFI_PASSPHRASE=${CERTIFI_PASSPHRASE}
-ARG ADM_PASSPHRASE=${ADM_PASSPHRASE}
-
-ARG HANDLE_SOURCE=handle-9.2.0-distribution.tar.gz
-ARG SRV_DIR=${SRV_DIR}
-ARG HANDLE_USER_ID=1000
+ENV SITE_VERSION ${SITE_VERSION}
+ENV SITE_DESCRIPTION ${SITE_DESCRIPTION}
+ENV SITE_ORG ${SITE_ORG}
+ENV SITE_CONTACT ${SITE_CONTACT}
+ENV SITE_CONTACT_NAME ${SITE_CONTACT_NAME}
+ENV SITE_CONTACT_PHONE ${SITE_CONTACT_PHONE}
+ENV CERTIFI_PASSPHRASE ${CERTIFI_PASSPHRASE}
+ENV ADM_PASSPHRASE ${ADM_PASSPHRASE}
 
 LABEL maintainer="bauer@cesnet.cz" \
   org.label-schema.name=${SITE_DESCRIPTION} \
@@ -81,18 +81,11 @@ RUN wget https://dev.mysql.com/get/Downloads/Connector-J/mysql-connector-java-5.
   && rm mysql-connector-java-5.1.44.tar.gz \
   && wget https://jdbc.postgresql.org/download/postgresql-42.1.4.jar -P lib
 
-# Install the handle distribution
+# Install and set up the handle distribution
+RUN mkdir ./gomplates
+COPY --chown=handle:root templates/*.tmpl ./gomplates/
+COPY --chown=handle:root scripts/*.sh ./
+RUN ./setup.sh
 
-# TODO: make templates forom .exp files, pass ENV/ARG variables inside
-COPY autoexpect-setup-server.exp setup-server.exp
-COPY autoexpect-start-server.exp start-server.exp
-RUN expect setup-server.exp
-
-# TODO: use handle-user bindable internal ports
-USER root
-
-#ENTRYPOINT ["bash"]
-ENTRYPOINT ["expect"]
-
-CMD [ "start-server.exp" ]
-
+ENTRYPOINT ["./entrypoint.sh"]
+CMD [ "./run.sh" ]

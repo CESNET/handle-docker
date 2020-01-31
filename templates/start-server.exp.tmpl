@@ -43,11 +43,11 @@ if {$force_conservative} {
 
 
 set timeout -1
-spawn ./bin/hdl-server /srv/handle/
+spawn ./bin/hdl-server {{ .Env.SRV_DIR }}
 match_max 100000
 expect -exact "Handle.Net Server Software version 9.2.0\r
 Enter the passphrase for this server's authentication private key: \r
 Note: Your passphrase will be displayed as it is entered\r
 "
-send -- "secret\r"
+send -- "{{ .Env.CERTIFI_PASSPHRASE }}\r"
 expect eof
