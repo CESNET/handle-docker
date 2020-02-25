@@ -12,8 +12,8 @@ is installed at ```/handle.net-server```.
 ```
 git clone https://github.com/CESNET/handle-docker
 cd handle-docker
-docker build -t cesnet-handle .
-docker run cesnet-handle
+docker-compose build --build-arg CERTIFI_PASSPHRASE=YourCertPassphrase --build-arg ADM_PASSPHRASE=YourAdminPassphrase
+docker-compose up -d
 ```
 
 # Configuration
