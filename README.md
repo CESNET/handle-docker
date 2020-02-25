@@ -26,7 +26,6 @@ The following `--build-args` are possible when building the image:
 | SITE_DESCRIPTION                     | Handle site description                   | Example Handle.Net Registry service |                   |
 | SITE_ORG                             | Handle site organization                  | example.org                         |
 | SITE_CONTACT                         | Handle site contact email                 | admin@example.org                   |
-| SITE_CONTACT                         | Handle site contact email                 | admin@example.org                   |
 | SITE_CONTACT_NAME                    | Handle site contact name                  | admin                               |
 | SITE_CONTACT_PHONE                   | Handle site contact phone                 |                                     |
 | CERTIFI_PASSPHRASE                   | Site certification key passphrase         | handl3.net-CHANGEME!!!              |
