@@ -10,6 +10,8 @@ RUN make build
 FROM openjdk:9-jdk
 
 # Setup container environment
+ARG SERVICE_IP="0.0.0.0"
+ARG BIND_ADDR="0.0.0.0"
 ARG SITE_VERSION=1
 ARG SITE_DESCRIPTION="Example Handle.Net Registry service"
 ARG SITE_ORG="example.org"
@@ -20,6 +22,7 @@ ARG SITE_CONTACT="admin@example.org"
 ARG CERTIFI_PASSPHRASE="handl3.net-CHANGEME!!!"
 ARG ADM_PASSPHRASE="handl3.net-adm-CHANGEME!!!"
 
+ARG PSQL_DRIVER_PACKAGE="postgresql-42.2.10.jar"
 ARG HANDLE_SOURCE=handle-9.2.0-distribution.tar.gz
 ARG SRV_DIR=${SRV_DIR}
 ARG HANDLE_USER_ID=1000
@@ -33,6 +36,9 @@ ENV CLIENT_PORT 2641
 ENV HTTP_PORT 8000
 ENV SRV_DIR /srv/handle
 
+# Site environment
+ENV SERVICE_IP=${SERVICE_IP}
+ENV BIND_ADDR=${BIND_ADDR}
 ENV SITE_VERSION ${SITE_VERSION}
 ENV SITE_DESCRIPTION ${SITE_DESCRIPTION}
 ENV SITE_ORG ${SITE_ORG}
@@ -41,6 +47,25 @@ ENV SITE_CONTACT_NAME ${SITE_CONTACT_NAME}
 ENV SITE_CONTACT_PHONE ${SITE_CONTACT_PHONE}
 ENV CERTIFI_PASSPHRASE ${CERTIFI_PASSPHRASE}
 ENV ADM_PASSPHRASE ${ADM_PASSPHRASE}
+
+# Site config file environment defaults
+ENV SERVER_ADMINS ""
+ENV REPLICATION_ADMINS ""
+ENV AUTO_HOMED_PREFIXES ""
+ENV SERVER_ADMIN_FULL_ACCESS yes
+ENV CASE_SENSITIVE no
+ENV MAX_SESSION_TIME 86400000
+ENV MAX_AUTH_TIME 60000
+ENV TRACE_RESOLUTION no
+ENV ALLOW_LIST_HDLS no
+ENV ALLOW_RECURSION no
+ENV STORAGE_TYPE ""
+ENV SQL_URL ""
+ENV SQL_DRIVER "org.postgresql.Driver"
+ENV SQL_LOGIN "handle"
+ENV SQL_PASSWD ""
+ENV SQL_READ_ONLY no
+ENV ALLOW_NA_ADMINS no
 
 LABEL maintainer="bauer@cesnet.cz" \
   org.label-schema.name=${SITE_DESCRIPTION} \
@@ -78,8 +103,10 @@ RUN wget https://www.handle.net/hnr-source/${HANDLE_SOURCE} \
 RUN wget https://dev.mysql.com/get/Downloads/Connector-J/mysql-connector-java-5.1.44.tar.gz \
   && tar -xf mysql-connector-java-5.1.44.tar.gz -C lib --strip-components=1 \
       mysql-connector-java-5.1.44/mysql-connector-java-5.1.44-bin.jar \
-  && rm mysql-connector-java-5.1.44.tar.gz \
-  && wget https://jdbc.postgresql.org/download/postgresql-42.1.4.jar -P lib
+  && rm mysql-connector-java-5.1.44.tar.gz
+
+# Download and install PostgreSQL JDBC driver
+RUN wget https://jdbc.postgresql.org/download/${PSQL_DRIVER_PACKAGE} -P lib
 
 # Install and set up the handle distribution
 RUN mkdir ./gomplates

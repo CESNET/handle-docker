@@ -59,9 +59,9 @@ expect -exact "\r
 Will this be a dual-stack server (accessible on both IPv6 and IPv4)?(y/n) \[n\]: "
 send -- "\r"
 expect -re {.*Through what network-accessible IP address should clients connect to this server.*}
-send -- "0.0.0.0\r"
+send -- "{{ .Env.SERVICE_IP }}\r"
 expect -re {.*If different, enter the IP address to which the server should bind.*}
-send -- "0.0.0.0\r"
+send -- "{{ .Env.BIND_ADDR }}\r"
 expect -re {.*Enter the .* port number this server will listen to.*}
 send -- "{{ .Env.CLIENT_PORT }}\r"
 expect -re {.*What port number will the HTTP interface be listening to.*}
